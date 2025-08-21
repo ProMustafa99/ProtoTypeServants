@@ -49,6 +49,60 @@ const MaidDetail: React.FC = () => {
     }
   };
 
+  const renderStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <svg key={i} style={{ width: '1.25rem', height: '1.25rem', color: '#fbbf24' }} fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      );
+    }
+
+    if (hasHalfStar) {
+      stars.push(
+        <svg key="half" style={{ width: '1.25rem', height: '1.25rem', color: '#fbbf24' }} fill="currentColor" viewBox="0 0 20 20">
+          <defs>
+            <linearGradient id="halfStar">
+              <stop offset="50%" stopColor="#fbbf24" />
+              <stop offset="50%" stopColor="#e5e7eb" />
+            </linearGradient>
+          </defs>
+          <path fill="url(#halfStar)" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      );
+    }
+
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <svg key={`empty-${i}`} style={{ width: '1.25rem', height: '1.25rem', color: '#d1d5db' }} fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      );
+    }
+
+    return stars;
+  };
+
+  const getAvailabilityColor = (availability: string) => {
+    switch (availability) {
+      case 'full-time':
+        return { background: '#dcfce7', color: '#166534' };
+      case 'part-time':
+        return { background: '#dbeafe', color: '#1e40af' };
+      case 'flexible':
+        return { background: '#f3e8ff', color: '#7c3aed' };
+      default:
+        return { background: '#f3f4f6', color: '#374151' };
+    }
+  };
+
+  const availabilityStyle = getAvailabilityColor(maid.availability);
+
   return (
     <div className="page">
       <div className="container">
@@ -91,7 +145,33 @@ const MaidDetail: React.FC = () => {
 
             {/* Maid Information */}
             <div>
-              <h1>{maid.name}</h1>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>{maid.name}</h1>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#059669' }}>${maid.hourlyRate}/hr</div>
+                  <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Hourly Rate</div>
+                </div>
+              </div>
+
+              {/* Rating */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex' }}>{renderStars(maid.rating)}</div>
+                <span style={{ fontSize: '1rem', fontWeight: '500', color: '#1f2937' }}>{maid.rating}</span>
+                <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>({maid.reviewCount} reviews)</span>
+              </div>
+
+              {/* Availability Badge */}
+              <div style={{
+                display: 'inline-block',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '9999px',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                marginBottom: '1rem',
+                ...availabilityStyle
+              }}>
+                {maid.availability.replace('-', ' ')}
+              </div>
               
               <div className="maid-info">
                 <div className="maid-info-item">
@@ -102,6 +182,14 @@ const MaidDetail: React.FC = () => {
                   <span className="maid-info-label">Country:</span>
                   <span className="maid-info-value">{maid.country}</span>
                 </div>
+                <div className="maid-info-item">
+                  <span className="maid-info-label">Experience:</span>
+                  <span className="maid-info-value">{maid.experience} years</span>
+                </div>
+                <div className="maid-info-item">
+                  <span className="maid-info-label">References:</span>
+                  <span className="maid-info-value">{maid.references} verified</span>
+                </div>
                 {maid.description && (
                   <div className="maid-description">
                     <span className="maid-description-label">About:</span>
@@ -109,6 +197,98 @@ const MaidDetail: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* Skills */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.75rem' }}>Skills</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {maid.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#dbeafe',
+                        color: '#1e40af',
+                        fontSize: '0.875rem',
+                        borderRadius: '9999px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Languages */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.75rem' }}>Languages</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {maid.languages.map((language, index) => (
+                    <span
+                      key={index}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#dcfce7',
+                        color: '#166534',
+                        fontSize: '0.875rem',
+                        borderRadius: '9999px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {language}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Specializations */}
+              {maid.specializations && maid.specializations.length > 0 && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.75rem' }}>Specializations</h3>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {maid.specializations.map((specialization, index) => (
+                      <span
+                        key={index}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          backgroundColor: '#fef3c7',
+                          color: '#92400e',
+                          fontSize: '0.875rem',
+                          borderRadius: '9999px',
+                          fontWeight: '500'
+                        }}
+                      >
+                        {specialization}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Certifications */}
+              {maid.certifications && maid.certifications.length > 0 && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.75rem' }}>Certifications</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {maid.certifications.map((certification, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          padding: '0.75rem',
+                          backgroundColor: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '0.5rem',
+                          fontSize: '0.875rem',
+                          color: '#374151'
+                        }}
+                      >
+                        ✓ {certification}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="maid-actions">
@@ -145,6 +325,8 @@ const MaidDetail: React.FC = () => {
                   <li>• Reference checks</li>
                   <li>• Skills assessment</li>
                   <li>• Insurance coverage</li>
+                  <li>• 24/7 support</li>
+                  <li>• Satisfaction guarantee</li>
                 </ul>
               </div>
             </div>
